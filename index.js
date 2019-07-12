@@ -1,4 +1,14 @@
 "use strict";
 const fs = require("fs");
-const torrent = fs.readFileSync("./faces.torrent");
-console.log(torrent.toString("utf8"));
+const bencode = require("bencode");
+const tracker = require("./tracker");
+
+const torrent = bencode.decode(fs.readFileSync("./puppy.torrent"));
+
+try {
+  tracker.getPeers(torrent, peers => {
+    console.log(`list of peers: ${peers}`);
+  });
+} catch (ex) {
+  console.log(`error: ${ex.info}`);
+}
