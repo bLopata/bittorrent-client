@@ -2,7 +2,7 @@
 const fs = require("fs");
 const bencode = require("bencode");
 const tracker = require("./src/tracker");
-const torrentParser = require("./src/torrent-parser");
+const torrentParser = require(process.argv[2]);
 
 const torrent = torrentParser.open("./puppy.torrent");
 
