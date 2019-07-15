@@ -12,7 +12,7 @@ module.exports.size = torrent => {
     ? torrent.info.files.map(file => file.length).reduce((a, b) => a + b)
     : torrent.info.length;
 
-  return bignum.toBuffer(size, { size: 8 });
+  return size;
 };
 
 module.exports.infoHash = torrent => {
