@@ -6,25 +6,31 @@ const { getPeers } = require("./tracker");
 
 module.exports = torrent => {
   getPeers(torrent, peers => {
-    peers.forEach(download);
+    peers.forEach(peer => download(peer, torrent));
   });
 };
 
-function download(peer) {
+function download(peer, torrent) {
   const socket = net.Socket();
-  socket.on("error", console.log());
+  socket.on("error", console.log);
   socket.connect(peer.port, peer.ip, () => {
-    // socket.write(...) write message here
+    socket.write(message.buildHandshake(torrent));
   });
-  onWholeMsg(socket, data => {
-    // handle response here
-  });
+  onWholeMsg(socket, msg => msgHandler(msg, socket));
+}
+function msgHandler(msg, socket) {
+  if (isHandshake(msg)) socket.write(message.buildInterest());
 }
 
+function isHandshake(msg) {
+  return (
+    msg.length === msg.readUInt8(0) + 49 &&
+    msg.toString("utf8", 1) === "BitTorrent Protocol"
+  );
+}
 function onWholeMsg(socket, callback) {
   let savedBuf = Buffer.alloc(0);
   let handshake = true;
-
   socket.on("data", recvBuf => {
     const msgLen = () =>
       handshake ? savedBuf.readUInt8(0) + 49 : savedBuf.readInt32BE(0) + 4;
